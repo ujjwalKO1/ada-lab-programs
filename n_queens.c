@@ -1,72 +1,33 @@
 #include <stdbool.h>
 #include <stdio.h>
-
 #define N 4
-
-void printSolution(int board[N][N]) {
+void print(int board[N][N]) {
     for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            if (board[i][j])
-                printf("Q ");
-            else
-                printf(". ");
-        }
+        for (int j = 0; j < N; j++) printf(board[i][j] ? "Q " : ". ");
         printf("\n");
     }
     printf("\n");
 }
-
-bool isSafe(int board[N][N], int row, int col) {
-    int i, j;
-
-    for (i = 0; i < col; i++)
-        if (board[row][i])
-            return false;
-
-    for (i = row, j = col; i >= 0 && j >= 0; i--, j--)
-        if (board[i][j])
-            return false;
-
-    for (i = row, j = col; j >= 0 && i < N; i++, j--)
-        if (board[i][j])
-            return false;
-
+bool isSafe(int board[N][N], int r, int c) {
+    for (int i = 0; i < c; i++) if (board[r][i]) return false;
+    for (int i = r, j = c; i >= 0 && j >= 0; i--, j--) if (board[i][j]) return false;
+    for (int i = r, j = c; j >= 0 && i < N; i++, j--) if (board[i][j]) return false;
     return true;
 }
-
-bool solveNQUtil(int board[N][N], int col) {
-    if (col >= N)
-        return true;
-
+bool solve(int board[N][N], int c) {
+    if (c >= N) return true;
     for (int i = 0; i < N; i++) {
-        if (isSafe(board, i, col)) {
-            board[i][col] = 1;
-
-            if (solveNQUtil(board, col + 1))
-                return true;
-
-            board[i][col] = 0;
+        if (isSafe(board, i, c)) {
+            board[i][c] = 1;
+            if (solve(board, c + 1)) return true;
+            board[i][c] = 0;
         }
     }
-
     return false;
 }
-
-void solveNQ() {
-    int board[N][N] = { { 0, 0, 0, 0 },
-                        { 0, 0, 0, 0 },
-                        { 0, 0, 0, 0 },
-                        { 0, 0, 0, 0 } };
-
-    if (solveNQUtil(board, 0) == false) {
-        printf("Solution does not exist");
-        return;
-    }
-
-    printSolution(board);
-}
-
 int main() {
-    solveNQ();
+    int board[N][N] = {0};
+    if (solve(board, 0)) print(board);
+    else printf("Solution does not exist");
     return 0;
 }

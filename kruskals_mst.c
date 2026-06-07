@@ -1,125 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-struct Edge {
-    int src, dest, weight;
-};
-
-struct Graph {
-    int V, E;
-    struct Edge* edge;
-};
-
-struct Graph* createGraph(int V, int E) {
-    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
-    graph->V = V;
-    graph->E = E;
-    graph->edge = (struct Edge*)malloc(graph->E * sizeof(struct Edge));
-    return graph;
+struct Edge { int src, dest, weight; };
+struct subset { int parent, rank; };
+int find(struct subset s[], int i) {
+    if (s[i].parent != i) s[i].parent = find(s, s[i].parent);
+    return s[i].parent;
 }
-
-struct subset {
-    int parent;
-    int rank;
-};
-
-int find(struct subset subsets[], int i) {
-    if (subsets[i].parent != i)
-        subsets[i].parent = find(subsets, subsets[i].parent);
-    return subsets[i].parent;
+void Union(struct subset s[], int x, int y) {
+    int xr = find(s, x), yr = find(s, y);
+    if (s[xr].rank < s[yr].rank) s[xr].parent = yr;
+    else if (s[xr].rank > s[yr].rank) s[yr].parent = xr;
+    else { s[yr].parent = xr; s[xr].rank++; }
 }
-
-void Union(struct subset subsets[], int x, int y) {
-    int xroot = find(subsets, x);
-    int yroot = find(subsets, y);
-
-    if (subsets[xroot].rank < subsets[yroot].rank)
-        subsets[xroot].parent = yroot;
-    else if (subsets[xroot].rank > subsets[yroot].rank)
-        subsets[yroot].parent = xroot;
-    else {
-        subsets[yroot].parent = xroot;
-        subsets[xroot].rank++;
-    }
+int comp(const void* a, const void* b) {
+    return ((struct Edge*)a)->weight > ((struct Edge*)b)->weight;
 }
-
-int myComp(const void* a, const void* b) {
-    struct Edge* a1 = (struct Edge*)a;
-    struct Edge* b1 = (struct Edge*)b;
-    return a1->weight > b1->weight;
-}
-
-void KruskalMST(struct Graph* graph) {
-    int V = graph->V;
-    struct Edge result[V];
-    int e = 0;
-    int i = 0;
-
-    qsort(graph->edge, graph->E, sizeof(graph->edge[0]), myComp);
-
-    struct subset* subsets = (struct subset*)malloc(V * sizeof(struct subset));
-
-    for (int v = 0; v < V; ++v) {
-        subsets[v].parent = v;
-        subsets[v].rank = 0;
-    }
-
-    while (e < V - 1 && i < graph->E) {
-        struct Edge next_edge = graph->edge[i++];
-
-        int x = find(subsets, next_edge.src);
-        int y = find(subsets, next_edge.dest);
-
-        if (x != y) {
-            result[e++] = next_edge;
-            Union(subsets, x, y);
-        }
-    }
-
-    printf("Edge \tWeight\n");
-    for (i = 0; i < e; ++i)
-        printf("%d - %d \t%d \n", result[i].src, result[i].dest, result[i].weight);
-        
-    free(subsets);
-}
-
 int main() {
-    int V = 5;
-    int E = 7;
-    struct Graph* graph = createGraph(V, E);
-
-    graph->edge[0].src = 0;
-    graph->edge[0].dest = 1;
-    graph->edge[0].weight = 2;
-
-    graph->edge[1].src = 0;
-    graph->edge[1].dest = 3;
-    graph->edge[1].weight = 6;
-
-    graph->edge[2].src = 1;
-    graph->edge[2].dest = 2;
-    graph->edge[2].weight = 3;
-
-    graph->edge[3].src = 1;
-    graph->edge[3].dest = 3;
-    graph->edge[3].weight = 8;
-
-    graph->edge[4].src = 1;
-    graph->edge[4].dest = 4;
-    graph->edge[4].weight = 5;
-
-    graph->edge[5].src = 2;
-    graph->edge[5].dest = 4;
-    graph->edge[5].weight = 7;
-
-    graph->edge[6].src = 3;
-    graph->edge[6].dest = 4;
-    graph->edge[6].weight = 9;
-
-    KruskalMST(graph);
-
-    free(graph->edge);
-    free(graph);
-
+    int V = 5, E = 7, e = 0, i = 0;
+    struct Edge edge[7] = {
+        {0, 1, 2}, {0, 3, 6}, {1, 2, 3}, {1, 3, 8}, {1, 4, 5}, {2, 4, 7}, {3, 4, 9}
+    };
+    struct Edge res[5];
+    qsort(edge, E, sizeof(struct Edge), comp);
+    struct subset s[5];
+    for (int v = 0; v < V; v++) { s[v].parent = v; s[v].rank = 0; }
+    while (e < V - 1 && i < E) {
+        struct Edge next = edge[i++];
+        int x = find(s, next.src), y = find(s, next.dest);
+        if (x != y) { res[e++] = next; Union(s, x, y); }
+    }
+    printf("Edge \tWeight\n");
+    for (i = 0; i < e; i++)
+        printf("%d - %d \t%d \n", res[i].src, res[i].dest, res[i].weight);
     return 0;
 }

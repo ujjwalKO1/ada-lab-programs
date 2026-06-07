@@ -1,63 +1,29 @@
 #include <stdio.h>
-
-void swap(int* a, int* b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-void printArray(int arr[], int size) {
-    for (int i = 0; i < size; i++) {
-        printf("%d ", arr[i]);
-    }
+void swap(int* a, int* b) { int t = *a; *a = *b; *b = t; }
+void P(int a[], int n) {
+    for (int i = 0; i < n; i++) printf("%d ", a[i]);
     printf("\n");
 }
-
-void heapify(int arr[], int n, int i) {
-    int largest = i;       
-    int left = 2 * i + 1;  
-    int right = 2 * i + 2; 
-
-    if (left < n && arr[left] > arr[largest]) {
-        largest = left;
-    }
-
-    if (right < n && arr[right] > arr[largest]) {
-        largest = right;
-    }
-
+void heapify(int a[], int n, int i) {
+    int largest = i, l = 2 * i + 1, r = 2 * i + 2;
+    if (l < n && a[l] > a[largest]) largest = l;
+    if (r < n && a[r] > a[largest]) largest = r;
     if (largest != i) {
-        swap(&arr[i], &arr[largest]);
-
-        heapify(arr, n, largest);
+        swap(&a[i], &a[largest]);
+        heapify(a, n, largest);
     }
 }
-
-void heapSort(int arr[], int n) {
-
-    for (int i = n / 2 - 1; i >= 0; i--) {
-        heapify(arr, n, i);
-    }
-
+void HS(int a[], int n) {
+    for (int i = n / 2 - 1; i >= 0; i--) heapify(a, n, i);
     for (int i = n - 1; i > 0; i--) {
-        
-        swap(&arr[0], &arr[i]);
-
-        heapify(arr, i, 0);
+        swap(&a[0], &a[i]);
+        heapify(a, i, 0);
     }
 }
-
 int main() {
-    int arr[] = {12, 11, 13, 5, 6, 7};
-    int n = sizeof(arr) / sizeof(arr[0]);
-
-    printf("Original array: \n");
-    printArray(arr, n);
-
-    heapSort(arr, n);
-
-    printf("\nSorted array: \n");
-    printArray(arr, n);
-    
+    int a[] = {12, 11, 13, 5, 6, 7}, n = sizeof(a) / sizeof(a[0]);
+    printf("Original array: \n"); P(a, n);
+    HS(a, n);
+    printf("\nSorted array: \n"); P(a, n);
     return 0;
 }

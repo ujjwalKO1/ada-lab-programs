@@ -1,56 +1,27 @@
 #include <stdio.h>
-
-void swap(int* a, int* b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-void printArray(int arr[], int size) {
-    for (int i = 0; i < size; i++) {
-        printf("%d ", arr[i]);
-    }
+void swap(int* a, int* b) { int t = *a; *a = *b; *b = t; }
+void P(int a[], int n) {
+    for (int i = 0; i < n; i++) printf("%d ", a[i]);
     printf("\n");
 }
-
-int partition(int arr[], int low, int high) {
-    int pivot = arr[high]; 
-    int i = (low - 1);     
-
-    for (int j = low; j <= high - 1; j++) {
-        
-        if (arr[j] < pivot) {
-            i++; 
-            swap(&arr[i], &arr[j]);
-        }
-    }
-    
-    swap(&arr[i + 1], &arr[high]);
-
-    return (i + 1);
+int part(int a[], int l, int h) {
+    int p = a[h], i = l - 1;
+    for (int j = l; j < h; j++)
+        if (a[j] < p) swap(&a[++i], &a[j]);
+    swap(&a[i + 1], &a[h]);
+    return i + 1;
 }
-
-void quickSort(int arr[], int low, int high) {
-    if (low < high) {
-        
-        int pi = partition(arr, low, high);
-
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
+void QS(int a[], int l, int h) {
+    if (l < h) {
+        int p = part(a, l, h);
+        QS(a, l, p - 1);
+        QS(a, p + 1, h);
     }
 }
-
 int main() {
-    int arr[] = {10, 80, 30, 90, 40, 50, 70};
-    int n = sizeof(arr) / sizeof(arr[0]);
-
-    printf("Original array: \n");
-    printArray(arr, n);
-
-    quickSort(arr, 0, n - 1);
-
-    printf("\nSorted array: \n");
-    printArray(arr, n);
-    
+    int a[] = {10, 80, 30, 90, 40, 50, 70}, n = sizeof(a) / sizeof(a[0]);
+    printf("Original array: \n"); P(a, n);
+    QS(a, 0, n - 1);
+    printf("\nSorted array: \n"); P(a, n);
     return 0;
 }
